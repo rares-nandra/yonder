@@ -1,0 +1,19 @@
+# Python
+*.pyc
+__pycache__/
+venv/
+*.py[cod]
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Virtual environment
+env/

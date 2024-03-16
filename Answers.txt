@@ -1,0 +1,322 @@
+================================ 1 | two data structures | ================================
+
+Question:
+Exemplify two data structures that you know and describe some situations where you would use them.
+
+Answer:
+
+A) Dictionary (hash table):
+
+Dictionaries could be useful for caching, where the key could be a url and the value a 
+cached css.
+
+B) Stacks:
+
+You can use a stack to easily implement an undo functionality by pushing any change to a stack
+and poping it off the stack when you want to undo it.
+
+
+
+================================ 2 | yonder ip and dns | ================================
+
+Question:
+You open a web browser and access http://www.tss-yonder.com. What is the IP address behind this 
+website and how does the browser know how to get the correct IP?
+
+Answer:
+traceroute www.tss-yonder.com:
+
+Warning: www.tss-yonder.com has multiple addresses; using 104.26.0.62
+traceroute to www.tss-yonder.com (104.26.0.62), 64 hops max, 52 byte packets
+1  dlinkrouter (192.168.0.1)  9.200 ms  3.338 ms  3.106 ms
+2  [Redacted]  4.566 ms  4.418 ms  4.540 ms
+3  [Redacted]  4.342 ms  4.868 ms  4.789 ms
+4  [Redacted]  53.760 ms
+   [Redacted]  24.748 ms
+   [Redacted]  41.447 ms
+5  de-cix-frankfurt.as13335.net (80.81.193.129)  36.862 ms
+80.249.210.118 (80.249.210.118)  45.921 ms
+195.66.227.207 (195.66.227.207)  39.526 ms
+6  162.158.84.55 (162.158.84.55)  29.517 ms
+141.101.65.14 (141.101.65.14)  42.202 ms
+172.71.248.5 (172.71.248.5)  31.984 ms
+7  www.tss (104.26.0.62)  31.118 ms  38.262 ms *
+
+
+-> 104.26.0.62 is a Cloudflare IP so the real ip is not this one
+-> Tried to find the real ip by looking at DNS records
+-> Tried to use a 3rd party tool to expose the real ip didn't manage to find it
+
+104.26.0.62
+104.26.1.62
+172.67.73.177
+	
+Cloudflare, Inc.
+	2021-12-14 (2 years)	2024-03-16 (today)	2 years
+89.33.132.12
+	
+Calea Dorobantilor, 18-20 etaj 3-5
+	2019-03-12 (5 years)	2021-12-14 (2 years)	3 years
+91.209.189.153
+	
+efectRO SRL
+	2017-05-26 (7 years)	2019-03-12 (5 years)	2 years
+
+
+IP of http://www.tss-yonder.com: 104.26.0.62 (Cloudflare IP, different depending on your location)
+
+
+Steps taken by your browser to reach http://www.tss-yonder.co
+
+I Caching
+
+The browser may cache DNS responses. If the IP address for http://www.tss-yonder.com is already in 
+the browser's cache and hasn't expired, the browser can skip the DNS resolution process and use 
+the cached IP address. The same caching process could also be done by the operating system. Caching 
+imrpoves waiting times and reduces the load on authoritative DNS servers
+
+II Without caching
+
+1. DNS Resolution:
+When you want to visit http://www.tss-yonder.com, your browser sends a DNS resolution request to 
+a DNS resolver. This resolver could be your ISP or a public DNS resolver like Google's or one 
+configured by a network administrator
+
+2. DNS Query:
+The DNS resolver checks if it has the IP address for http://www.tss-yonder.com cached locally. 
+If not, it contacts the root DNS servers to find out which DNS servers are authoritative for 
+the top level domain, in this case .com
+
+3. Authoritative DNS Servers:
+The resolver then contacts one of the authoritative DNS servers responsible for the top level domain 
+to find out which DNS servers are authoritative for tss-yonder.com
+
+4. Resolve IP Address: 
+The resolver contacts one of the authoritative DNS servers for the tss-yonder.com domain to request 
+the IP address associated with http://www.tss-yonder.com.
+
+5. Response:
+The authoritative DNS server responds with the IP address associated with http://www.tss-yonder.com.
+
+6. The end:
+The browser can now establish a connection to the web server hosting http://www.tss-yonder.com 
+to retrieve the webpage content.
+
+This is the general overview of the process but things are a bit different for http://www.tss-yonder.com
+as it uses Cloudflare which protects the server by hiding it's ip address and responding with an ip from
+Cloudflare.
+
+
+
+================================ 3 | two transport protocols | ================================
+
+Question:
+Exemplify two transport protocols and think of two applications that would use each of them. 
+
+Answer:
+
+TCP - Transmission Control Protocol:
+
+TCP ensures that all data packets are received by the destination in the correct order and without 
+errors. TCP achieves this reliability through sequence numbers, acknowledgments, and retransmissions.
+These safety measures come with a hit on performance, introducing additional overhead and latency.
+
+TCP is used in applications that need to make sure that every packet is recived and can afford the
+overhead.
+
+Examples: web browsing, SSH, FTP
+
+
+UDP - User Datagram Protocol
+
+UDP is a connectionless, unreliable protocol with minimal overhead. It does not guarantee delivery 
+or order of packets, nor does it provide error correction but this lack of safety measures makes 
+it fast.
+
+UDP is used in applications that can't afford the overhead of TCP and are fine with packets beeing lost,
+recived as duplicates or recived out of sync
+
+Examples: real time applications like video calling (Discord), video streaming (Youtube, Netflix) or 
+online gaming (CS:GO)
+
+
+
+================================ 4 | chat web application | ================================
+
+Question:
+You wrote a chat web application in your favorite programming language. You need to host this
+somewhere and run it so that the entire world can start using it. Describe how you would do that 
+and the tools you would use.
+
+Answer:
+
+Implementation details:
+I would use python with flask (also gunicorn) and probably mongo db and redis for  quickly acccessing 
+data that is read oftenly. For the messaging itself websockets would be a nice option.
+
+The decisions related to the infrastructure depend on the budget and expected number of users 
+and where they are from but for the sake of simplicity i will assume a small budget with a 
+small number of users in the same region as the following implementation could be scaled up pretty 
+easy without a lot of cost involved.
+
+I would aim to divide my backend in different isolated parts. Lets say we have an isolated part
+handling the messaging, another one handling the authentification and another one handling serving
+the frontend. This could be divided into many more parts as time goes on. Next i would assign a sub 
+domain for each one. For example: auth.coolwebapp.com etc...
+
+Next, we need a server to handle everything. This server would use nginx as a reverse proxy to
+send the requests to each server depending of the sub domain. nginx could also be used as a
+load balancer if we scale and have multiple server handling authentification or other components.
+
+Some nice additions for security would be setting up a firewall and fail2ban and also to use 
+Cloudflare.
+
+With the infrastructure in place i would do the following:
+- Have everything in its docker container.
+- Make an ansible configuration to automate everything from setting up docker on the servers to
+spinning up the containers, updating dependencies on the server every sunday at 3 am and so on.
+This makes setting up new servers or migrating to another provider really fast and pain free.
+- a ci/cd pipeline. And also to pull the code from a production ready git repo.
+
+
+
+================================ 5 | chat web application BUG | ================================
+
+Question:
+Now your application is famous but unfortunately it has a lot of bugs. You want only you and a couple 
+of your friends to be able to access it until you patch it. Describe two ways you can achieve this.
+
+Answer:
+
+I could do an IP whitelist on my server's firewall to allow access only from my ip and theirs.
+This could work for a while but with most isps the public ip is not static and is subject to
+changes so another solution would be having a basic form of authentification restricting 
+all accounts except theirs and mine.
+
+
+
+================================ 6 | chat web application Security | ================================
+
+Question:
+Your application is ready for the public once again. You realize that you forgot about security and 
+any network administrator can see the messages that a user sends or receives. How would you improve 
+your application to prevent this? Is there any way to do this so that not even the application owner 
+(you) can see the messages between two random users?
+
+Answer:
+
+A basic best practice is to NEVER store data as plain text in a database. This could be prevented by
+implementing end to end encryption between the users (like Whats app) and storing the encrypted
+messages. This combined with other obvious practices like only using https to send data over the 
+internet improve security. (shoutout Let's Encrypt for beeing free :) )
+
+
+
+================================ 7 | Cookies | ================================
+
+Question:
+What are cookies and what are they used for? Find a cookie used by http://www.tss-yonder.com and copy 
+its name and value. What do you think is its purpose?
+
+Answer:
+
+Cookies are pieces of data created by websites to store information on a users browser for future visits. 
+They are associated with the domain of the website that creates them (with the exception of 3rd party
+cookies which will be deprecated by Google by the end of the year) and are sent with each request to 
+that domain. Cookies are used to maintain a persistent state across website visits, storing preferences
+and other data. For session identifiers HttpOnly cookies should be used.
+
+cookieconsent_status:"dismiss"  -> this cookie is used to determine if the user already accepted
+the cookies conset popup.
+
+
+================================ 8 | child process | ================================
+
+Question:
+While writing your application you need to create more worker processes for processing some data.
+How can you create child processes in your favorite language? What are the possible states of a 
+process?
+
+
+Answer:
+
+PYTHON:
+
+import multiprocessing
+
+def worker_function(data):
+    # Do some processing with the data
+    result = data * 2
+    return result
+
+if __name__ == "__main__":
+    # Create a list of data to process
+    data_to_process = [1, 2, 3, 4, 5]
+
+    # Create a pool of worker processes
+    with multiprocessing.Pool(processes=4) as pool:
+        # Map the worker function to the data and get the results
+        results = pool.map(worker_function, data_to_process)
+
+    print(results)
+
+But let's say i have a flask backend i could use a WSGI like gunicorn to handle the concurrent execution 
+of multiple worker processes.
+
+gunicorn -w 4 -b 0.0.0.0:8000 app:app
+
+-w 4 means to use 4 worker processes.
+-b 0.0.0.0:8000 specifies the host and port on which Gunicorn will listen for incoming requests.
+app:app specifies the module and the application instance within that module.
+
+Regarding the possible states of a process, a process could be:
+
+- Running: The process is currently executing instructions on the CPU.
+- Blocked/Waiting: The process is waiting for an event to occur, such as I/O operation 
+completion or a signal from another process.
+- Ready: The process is ready to run but is waiting for the CPU to become available.
+- Terminated: The process has completed its execution and has been terminated either successfully 
+or due to an error.
+- Suspended: The process is temporarily suspended and is not scheduled for execution.
+
+
+
+================================ 9 | pid & debug | ================================
+
+Question:
+Your application is running but it still has a few problems. Occasionally, it returns an 
+error page. How can you find the PID of your application? What would you do to debug it?
+
+Answer:
+
+You can use:
+ps aux | grep <process_name>
+
+For searching the process if you dont know the name you could use ps aux to list
+all of them.
+
+For docker:
+
+docker ps
+docker exec <container_id> ps aux | grep <process_name>
+
+In order to debug it you can look at logs or the resources used or for testing
+routes you could use tools like postman for testing routes and responses. It varies
+A LOT depending on the problem with the application so i can't really provide a specific
+method.
+
+
+
+
+================================ 10 | DBMS | ================================
+
+Question:
+What DBMS would you use to store your application data and why? How would you store the passwords of
+each user?
+
+Answer:
+I already touched on this earlier but i would use MongoDB paired with Redis.
+Redis is useful for data that needs to be accessed a lot and MongoDB for actually saving them.
+
+Passwords MUST be encrypted when stored. Never store them as plain text. Also salting passwords
+before hashing is a good practice.

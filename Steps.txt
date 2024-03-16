@@ -1,0 +1,38 @@
+================================ 1 | Starting the container | ================================
+
+The command used for starting the container:
+
+docker run -p 30000:30000 yondermakers/yonder-devops-tech-assessment-arm-cpu:latest --server.port=30000
+
+Useful resource: https://spring.io/guides/topicals/spring-boot-docker
+
+================================ 1.5 | Snooping around | ================================
+
+Did some snooping around in the container itself and on the web page looking for some easter
+eggs maybe? Didn't really find anything interesting.
+
+
+
+================================ 2 | Answering the questions  | ================================
+
+The Answers are found in Answers.txt
+
+
+
+================================ 3 | The console application | ================================
+
+1. Tried the route for the licenses inside a browser to see how they look like
+2. Tested the length parameter for 150 licenses and it works
+3. Tried to think about the general layout of my app.
+- I will need a class to handle the api connection. this class should get the licenses
+and also validate the json and the types in case the data from the api "will ever change"
+- I will need a class for the filters
+- I will need a class for exporting to excel
+4. Implemented the api class and decided it will be a good idea to add a config.json and a
+config class for easily changing the url for the api and changing the folder for exporting
+excel files
+5. Implemented the config reader and config.json
+6. Implemented the filters and tested them
+7. Implemented the exporting for excel functionality
+8. made a simple cli in main.py as 4 print statments don't really need a separate class
+9. made requirments.txt for easily running the project
